@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A measured-yet-opinionated plea to try HTMX. Skip the React complexity, skip the raw HTML limitations. There's a third option.">
+    <title>Please Just Try HTMX</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+        body {
+            max-width: 750px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            background: #fefefe;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.2em;
+        }
+        h2 {
+            margin-top: 2em;
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.3em;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        a {
+            color: #3366cc;
+        }
+        .highlight {
+            background: #fffde7;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .demo-box {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .demo-box h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        button.demo-btn {
+            background: #3366cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button.demo-btn:hover {
+            background: #254e9c;
+        }
+        .demo-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 5px;
+            color: #155724;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .search-results {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            min-height: 40px;
+        }
+        .skeptic {
+            margin: 25px 0;
+        }
+        .skeptic-q {
+            font-weight: bold;
+            font-style: italic;
+            color: #666;
+        }
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .cta {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .cta a {
+            color: #7cb3ff;
+        }
+        .htmx-request {
+            opacity: 0.5;
+            transition: opacity 200ms ease-in;
+        }
+        .htmx-settling {
+            opacity: 1;
+        }
+        /* Smooth content transitions */
+        .demo-box .htmx-added {
+            animation: fadeIn 300ms ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-indicator {
+            display: none;
+            color: #666;
+            font-style: italic;
+        }
+        .htmx-request .loading-indicator {
+            display: inline;
+        }
+        .htmx-request .hide-on-request {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Please Just Try HTMX</h1>
+<p><em>A measured-yet-opinionated plea from someone who's tired of watching you suffer</em></p>
+
+<p>Look. I'm not going to call you a fucking moron every other sentence. That's been done. It's a whole genre now. And honestly? HTMX doesn't need me to scream at you to make its point.</p>
+
+<p>The sweary web manifesto thing is fun—I've enjoyed reading them—but let's be real: yelling "JUST USE HTML" or "JUST USE REACT" hasn't actually changed anyone's stack. People nod, chuckle, and then go right back to fighting with their webpack config.</p>
+
+<p>So I'm going to try something different. I'll still swear (I'm not a fucking saint), but I'm also going to <em>show you something</em>.</p>
+
+<h2>The False Choice</h2>
+
+<p>Right now, the web development discourse offers you two options:</p>
+
+<p><strong>Option A: "Just use HTML!"</strong> And they're not wrong. HTML is shockingly capable. Forms work. Links work. The <code>&lt;dialog&gt;</code> element exists now. The web was built on this stuff and it's been chugging along since Tim Berners-Lee had hair.</p>
+
+<p>But sometimes—and here's where it gets uncomfortable—you actually <em>do</em> need a button that updates part of a page without reloading the whole damn thing. You <em>do</em> need a search box that shows results as you type. You <em>do</em> need interactivity.</p>
+
+<p>So you turn to:</p>
+
+<p><strong>Option B: React (or Vue, or Svelte, or Angular if you're being punished for something).</strong></p>
+
+<p>And suddenly you've got:</p>
+<ul>
+    <li>A <code>package.json</code> with 847 dependencies</li>
+    <li>A build step that takes 45 seconds (if the CI gods are merciful)</li>
+    <li>State management debates polluting your pull requests</li>
+    <li>Junior devs losing their minds over why <code>useEffect</code> runs twice</li>
+    <li>A bundle size that would make a 56k modem weep</li>
+</ul>
+
+<p>For what? A to-do list? A contact form? A dashboard that displays some numbers from a database?</p>
+
+<p>This is the false choice: raw HTML's limitations <em>or</em> JavaScript framework purgatory.</p>
+
+<p>There's a third option. I just need you to try it.</p>
+
+<h2>HTMX: The Pitch</h2>
+
+<p>What if I told you:</p>
+<ul>
+    <li><strong>Any HTML element</strong> can make an HTTP request</li>
+    <li>The server just returns <strong>HTML</strong> (not JSON, actual HTML)</li>
+    <li>That HTML gets <strong>swapped into the page</strong> wherever you want</li>
+    <li>You write <strong>zero JavaScript</strong></li>
+    <li>The whole library is <strong>~14kb gzipped</strong></li>
+</ul>
+
+<p>That's HTMX. That's literally the whole thing.</p>
+
+<p>Here's a button that makes a POST request and replaces itself with the response:</p>
+
+<pre><code>&lt;button hx-post="/clicked" hx-swap="outerHTML"&gt;
+    Click me
+&lt;/button&gt;</code></pre>
+
+<p>When you click it, HTMX POSTs to <code>/clicked</code>, and whatever HTML the server returns replaces the button. No <code>fetch()</code>. No <code>setState()</code>. No <code>npm install</code>. No fucking webpack config.</p>
+
+<p>The server just returns HTML. Like it's 2004, except your users have fast internet and your server can actually handle it. The hypermedia architecture the web was designed for—but with modern conveniences.</p>
+
+<h2>Don't Believe Me? Click Things.</h2>
+
+<p>This page uses HTMX. These demos actually work.</p>
+
+<div class="demo-box">
+    <h3>Demo 1: Click a Button</h3>
+    <p>This button makes a POST request and swaps in the response:</p>
+    <div id="demo1-target">
+        <button class="demo-btn" hx-post="/demo/clicked" hx-swap="outerHTML" hx-target="#demo1-target">
+            Click me (hx-post)
+        </button>
+    </div>
+</div>
+
+<div class="demo-box">
+    <h3>Demo 2: Load More Content</h3>
+    <p>This button fetches additional content and appends it below:</p>
+    <div id="content-container">
+        <p>Here's some initial content.</p>
+    </div>
+    <button class="demo-btn" hx-get="/demo/more-content" hx-target="#content-container" hx-swap="beforeend">
+        Load more (hx-get)
+    </button>
+</div>
+
+<div class="demo-box">
+    <h3>Demo 3: Live Search</h3>
+    <p>Type something—results update as you type (debounced, of course):</p>
+    <input type="text"
+           name="search"
+           placeholder="Try typing 'htmx'..."
+           hx-get="/demo/search"
+           hx-trigger="keyup changed delay:300ms"
+           hx-target="#search-results">
+    <div id="search-results" class="search-results">
+        <em>Results will appear here...</em>
+    </div>
+</div>
+
+<p class="highlight">
+    <strong>That's HTMX.</strong> I didn't write JavaScript to make those work. I wrote HTML attributes. The "server" (mocked client-side for this demo, but the htmx code is real) returns HTML fragments, and HTMX swaps them in. The behavior is right there in the markup—you don't have to hunt through component files and state management code to understand what a button does. HTMX folks call this <strong>"Locality of Behavior"</strong> and once you have it, you'll miss it everywhere else.
+</p>
+
+<h2>The Numbers</h2>
+
+<p>Anecdotes are nice. Data is better.</p>
+
+<p>A company called <strong>Contexte</strong> rebuilt their production SaaS app from React to Django templates with HTMX. Here's what happened:</p>
+
+<div class="stats">
+    <div class="stat">
+        <div class="stat-number">67%</div>
+        <div class="stat-label">less code</div>
+        <div class="stat-detail">(21,500 → 7,200 lines)</div>
+    </div>
+    <div class="stat">
+        <div class="stat-number">96%</div>
+        <div class="stat-label">fewer JS dependencies</div>
+        <div class="stat-detail">(255 → 9 packages)</div>
+    </div>
+    <div class="stat">
+        <div class="stat-number">88%</div>
+        <div class="stat-label">faster builds</div>
+        <div class="stat-detail">(40s → 5s)</div>
+    </div>
+    <div class="stat">
+        <div class="stat-number">50-60%</div>
+        <div class="stat-label">faster page loads</div>
+        <div class="stat-detail">(2-6s → 1-2s)</div>
+    </div>
+</div>
+
+<p>They deleted two-thirds of their codebase and the app got <em>better</em>. Every developer became "full-stack" because there wasn't a separate frontend to specialize in anymore.</p>
+
+<p>Now, they note this was a content-focused app and not every project will see these exact numbers. Fair. But even if you got <em>half</em> these improvements, wouldn't that be worth a weekend of experimentation?</p>
+
+<h2>For the Skeptics</h2>
+
+<div class="skeptic">
+    <p class="skeptic-q">"But what about complex client-side state management?"</p>
+    <p>You probably don't have complex client-side state. You have forms. You have lists. You have things that show up when you click other things. HTMX handles all of that.</p>
+    <p>If you're building Google Docs, sure, you need complex state management. But you're not building Google Docs. You're building a CRUD app that's convinced it's Google Docs.</p>
+</div>
+
+<div class="skeptic">
+    <p class="skeptic-q">"But the React ecosystem!"</p>
+    <p>The ecosystem is why your <code>node_modules</code> folder is 2GB. The ecosystem is why there are 14 ways to style a component and they all have tradeoffs. The ecosystem is why "which state management library" is somehow still a debate.</p>
+    <p>HTMX's ecosystem is: your server-side language of choice. That's it. That's the ecosystem.</p>
+</div>
+
+<div class="skeptic">
+    <p class="skeptic-q">"But SPAs feel faster!"</p>
+    <p>After the user downloads 2MB of JavaScript, waits for it to parse, waits for it to execute, waits for it to hydrate, waits for it to fetch data, waits for it to render... yes, then subsequent navigations feel snappy. Congratulations.</p>
+    <p>HTMX pages load fast the <em>first</em> time because you're not bootstrapping an application runtime. And subsequent requests are fast because you're only swapping the parts that changed.</p>
+</div>
+
+<div class="skeptic">
+    <p class="skeptic-q">"But I need [specific React feature]!"</p>
+    <p>Maybe you do. I'm not saying React is never the answer. I'm saying it's the answer to about 10% of the problems it's used for, and the costs of reaching for it reflexively are staggering.</p>
+    <p>Most teams don't fail because they picked the wrong framework. They fail because they picked <em>too much</em> framework. HTMX is a bet on simplicity, and simplicity tends to win over time.</p>
+</div>
+
+<h2>When NOT to Use HTMX</h2>
+
+<p>I'm not a zealot. HTMX isn't for everything.</p>
+
+<ul>
+    <li><strong>Real-time collaborative editing</strong> (Google Docs, Figma)</li>
+    <li><strong>Heavy client-side computation</strong> (video editors, CAD tools)</li>
+    <li><strong>Offline-first applications</strong> (though you can combine approaches)</li>
+    <li><strong>Genuinely complex UI state</strong> (not "my form has validation" complex—actually complex)</li>
+</ul>
+
+<p>But be honest with yourself: is that what you're building?</p>
+
+<p>Or are you building another dashboard, another admin panel, another e-commerce site, another blog, another SaaS app that's fundamentally just forms and tables and lists? Be honest. I won't tell anyone.</p>
+
+<p>For that stuff, HTMX is embarrassingly good. Like, "why did we make it so complicated" good. Like, "oh god, we wasted so much time" good.</p>
+
+<h2>Just Try It</h2>
+
+<div class="cta">
+    <p>You've tried React. You've tried Vue. You've tried Angular and regretted it. You've tried whatever meta-framework is trending on Hacker News this week.</p>
+
+    <p><strong>Just try HTMX.</strong> One weekend. Pick a side project. Pick that internal tool nobody cares about. Pick the thing you've been meaning to rebuild anyway.</p>
+
+    <p>Add one <code>&lt;script&gt;</code> tag. Write one <code>hx-get</code> attribute. Watch what happens.</p>
+
+    <p>If you hate it, you've lost a weekend. But you won't hate it. You'll wonder why you ever thought web development had to be so fucking complicated.</p>
+
+    <p>
+        <strong>Learn more:</strong><br>
+        <a href="https://htmx.org">htmx.org</a> — The official site and docs<br>
+        <a href="https://hypermedia.systems">hypermedia.systems</a> — The free book on hypermedia-driven apps
+    </p>
+</div>
+
+<footer>
+    <p>This page is a single HTML file. It uses HTMX for the demos. There is no build step. There is no <code>package.json</code>. View source if you don't believe me—it's not minified, because why would it be?</p>
+    <p>Inspired by (and in gentle dialogue with) <a href="https://motherfuckingwebsite.com">motherfuckingwebsite.com</a>, <a href="https://justfuckingusehtml.com">justfuckingusehtml.com</a>, <a href="http://bettermotherfuckingwebsite.com">bettermotherfuckingwebsite.com</a>, and <a href="https://justfuckingusereact.com">justfuckingusereact.com</a>. They yell; I gently insist.</p>
+</footer>
+
+<!-- Mock server for demos - in real life, your actual server would return HTML -->
+<script>
+(function() {
+    // Mock responses for the demos
+    const mockResponses = {
+        'POST /demo/clicked': `
+            <div class="demo-result">
+                <strong>It worked.</strong> That was an actual HTMX POST request.
+                The "server" returned this HTML and HTMX swapped it in.
+                <br><br>
+                <button class="demo-btn" hx-post="/demo/clicked-again" hx-swap="outerHTML" hx-target="#demo1-target">
+                    Click again?
+                </button>
+            </div>
+        `,
+        'POST /demo/clicked-again': `
+            <div class="demo-result">
+                <strong>Still working.</strong> Each click is a new request. The server decides what HTML to return.
+                This is the entire mental model. That's it.
+                <br><br>
+                <button class="demo-btn" hx-post="/demo/clicked" hx-swap="outerHTML" hx-target="#demo1-target">
+                    One more time
+                </button>
+            </div>
+        `,
+        'GET /demo/more-content': `
+            <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 5px;">
+                <strong>New content loaded!</strong> This HTML came from the server (well, a mock)
+                and was appended below the existing content. No JavaScript written.
+            </div>
+        `,
+    };
+
+    // Search mock - returns different results based on query
+    function getSearchResults(query) {
+        if (!query || query.trim() === '') {
+            return '<em>Results will appear here...</em>';
+        }
+
+        query = query.toLowerCase();
+
+        if (query.includes('htmx')) {
+            return `
+                <div class="demo-result" style="background: #e8f5e9;">
+                    <strong>Search results for "${query}":</strong>
+                    <ul style="margin: 10px 0;">
+                        <li>htmx - High power tools for HTML</li>
+                        <li>htmx examples and tutorials</li>
+                        <li>Why htmx is taking over frontend</li>
+                    </ul>
+                    <em>This updated live as you typed. No JavaScript written—just an hx-get with a trigger.</em>
+                </div>
+            `;
+        } else if (query.includes('react')) {
+            return `
+                <div class="demo-result" style="background: #fff3e0;">
+                    <strong>Search results for "${query}":</strong>
+                    <ul style="margin: 10px 0;">
+                        <li>React - A JavaScript library (you know this one)</li>
+                        <li>Is React overkill for your project?</li>
+                        <li>React vs htmx: An honest comparison</li>
+                    </ul>
+                    <em>Try searching "htmx" instead. Just a thought.</em>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="demo-result">
+                    <strong>Search results for "${query}":</strong>
+                    <ul style="margin: 10px 0;">
+                        <li>Result 1 for "${query}"</li>
+                        <li>Result 2 for "${query}"</li>
+                        <li>Result 3 for "${query}"</li>
+                    </ul>
+                    <em>These results updated as you typed. That's hx-trigger="keyup changed delay:300ms" at work.</em>
+                </div>
+            `;
+        }
+    }
+
+    // Intercept XMLHttpRequest for demo purposes
+    const OriginalXHR = window.XMLHttpRequest;
+
+    window.XMLHttpRequest = function() {
+        const xhr = new OriginalXHR();
+        let method = '';
+        let url = '';
+
+        const originalOpen = xhr.open;
+        xhr.open = function(m, u, ...args) {
+            method = m.toUpperCase();
+            url = u;
+            return originalOpen.call(this, m, u, ...args);
+        };
+
+        const originalSend = xhr.send;
+        xhr.send = function(body) {
+            const key = `${method} ${url.split('?')[0]}`;
+
+            // Check for search query
+            if (url.startsWith('/demo/search')) {
+                const params = new URLSearchParams(url.split('?')[1] || '');
+                const query = params.get('search') || '';
+
+                setTimeout(() => {
+                    Object.defineProperty(xhr, 'status', { writable: true, value: 200 });
+                    Object.defineProperty(xhr, 'responseText', { writable: true, value: getSearchResults(query) });
+                    Object.defineProperty(xhr, 'readyState', { writable: true, value: 4 });
+                    if (xhr.onreadystatechange) xhr.onreadystatechange();
+                    if (xhr.onload) xhr.onload();
+                }, 150);
+                return;
+            }
+
+            // Check for other mock responses
+            if (mockResponses[key]) {
+                setTimeout(() => {
+                    Object.defineProperty(xhr, 'status', { writable: true, value: 200 });
+                    Object.defineProperty(xhr, 'responseText', { writable: true, value: mockResponses[key] });
+                    Object.defineProperty(xhr, 'readyState', { writable: true, value: 4 });
+                    if (xhr.onreadystatechange) xhr.onreadystatechange();
+                    if (xhr.onload) xhr.onload();
+                }, 200);
+                return;
+            }
+
+            return originalSend.call(this, body);
+        };
+
+        return xhr;
+    };
+})();
+</script>
+
+</body>
+</html>
