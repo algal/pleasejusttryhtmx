@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A measured-yet-opinionated plea to try HTMX. Skip the React complexity, skip the raw HTML limitations. There's a third option.">
-    <title>Please Just Try HTMX</title>
+    <title>Please Just Fucking Try HTMX</title>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <style>
         body {
@@ -179,7 +179,9 @@
 
 <p>Look. I'm not going to call you a <a href="https://motherfuckingwebsite.com">fucking moron</a> every other sentence. That's been done. It's a whole genre now. And honestly? HTMX doesn't need me to scream at you to make its point.</p>
 
-<p>The sweary web manifesto thing is fun—I've enjoyed reading them—but let's be real: yelling "<a href="https://justfuckingusehtml.com">JUST USE HTML</a>" or "<a href="https://justfuckingusereact.com">JUST FUCKING USE REACT</a>" hasn't actually changed anyone's stack. People nod, chuckle, and then go right back to fighting their raw JS or their webpack config. (But I must admit this is not quite true of <a href="http://bettermotherfuckingwebsite.com">bettermotherfuckingwebsite.com</a>, which, to be honest, is a fucking pedagogical masterpiece.)</p>
+<p>The sweary web manifesto thing is fun—I've enjoyed reading them—but let's be real: yelling "<a href="https://justfuckingusehtml.com">JUST USE HTML</a>" or "<a href="https://justfuckingusereact.com">JUST FUCKING USE REACT</a>" hasn't actually changed anyone's stack. People nod, chuckle, and then go right back to fighting their raw JS or their webpack config.</p>
+
+<p>(Honor obliges me to admit this is not literally true of <a href="http://bettermotherfuckingwebsite.com">bettermotherfuckingwebsite.com</a>, which, to be frank, is a fucking pedagogical masterpiece and reshaped how I built my own site.)</p>
 
 <p>So I'm going to try something different. I'll still swear (I'm not a fucking saint), but I'm also going to <em>show you something</em>, in the course of imploring you, for your own sanity and happiness, to at least please just _try_ htmx.</p>
 
@@ -455,56 +457,41 @@
         }
     }
 
-    // Intercept XMLHttpRequest for demo purposes
-    const OriginalXHR = window.XMLHttpRequest;
+    // Intercept fetch() for demo purposes (HTMX 2.x uses fetch by default)
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options = {}) {
+        const method = (options.method || 'GET').toUpperCase();
+        const pathname = new URL(url, window.location.origin).pathname;
+        const key = `${method} ${pathname}`;
 
-    window.XMLHttpRequest = function() {
-        const xhr = new OriginalXHR();
-        let method = '';
-        let url = '';
-
-        const originalOpen = xhr.open;
-        xhr.open = function(m, u, ...args) {
-            method = m.toUpperCase();
-            url = u;
-            return originalOpen.call(this, m, u, ...args);
-        };
-
-        const originalSend = xhr.send;
-        xhr.send = function(body) {
-            const key = `${method} ${url.split('?')[0]}`;
-
-            // Check for search query
-            if (url.startsWith('/demo/search')) {
-                const params = new URLSearchParams(url.split('?')[1] || '');
-                const query = params.get('search') || '';
-
+        // Check for search query
+        if (pathname === '/demo/search') {
+            const fullUrl = new URL(url, window.location.origin);
+            const query = fullUrl.searchParams.get('search') || '';
+            return new Promise(resolve => {
                 setTimeout(() => {
-                    Object.defineProperty(xhr, 'status', { writable: true, value: 200 });
-                    Object.defineProperty(xhr, 'responseText', { writable: true, value: getSearchResults(query) });
-                    Object.defineProperty(xhr, 'readyState', { writable: true, value: 4 });
-                    if (xhr.onreadystatechange) xhr.onreadystatechange();
-                    if (xhr.onload) xhr.onload();
+                    resolve(new Response(getSearchResults(query), {
+                        status: 200,
+                        headers: { 'Content-Type': 'text/html' }
+                    }));
                 }, 150);
-                return;
-            }
+            });
+        }
 
-            // Check for other mock responses
-            if (mockResponses[key]) {
+        // Check for other mock responses
+        if (mockResponses[key]) {
+            return new Promise(resolve => {
                 setTimeout(() => {
-                    Object.defineProperty(xhr, 'status', { writable: true, value: 200 });
-                    Object.defineProperty(xhr, 'responseText', { writable: true, value: mockResponses[key] });
-                    Object.defineProperty(xhr, 'readyState', { writable: true, value: 4 });
-                    if (xhr.onreadystatechange) xhr.onreadystatechange();
-                    if (xhr.onload) xhr.onload();
+                    resolve(new Response(mockResponses[key], {
+                        status: 200,
+                        headers: { 'Content-Type': 'text/html' }
+                    }));
                 }, 200);
-                return;
-            }
+            });
+        }
 
-            return originalSend.call(this, body);
-        };
-
-        return xhr;
+        // Fall through to real fetch for non-demo requests
+        return originalFetch.apply(this, arguments);
     };
 })();
 </script>
