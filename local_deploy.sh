@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec cp /home/algal/gits/pleasejusttryhtmx/index.html /usr/share/caddy/files/
+exec rsync -a --exclude='.git/' /home/algal/gits/pleasejusttryhtmx/ /usr/share/caddy/files/htmx/
